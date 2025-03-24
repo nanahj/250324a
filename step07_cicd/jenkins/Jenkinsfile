@@ -4,42 +4,24 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                echo '📂 Git 저장소를 클론 중...'
-                checkout scm
+                git branch: 'main', url: 'https://github.com/nanahj/250324a.git'
             }
-        }
-
+        }          
         stage('Build') {
             steps {
-                echo '🔨 빌드 중...'
-                sh './jenkins/build.sh'
+                dir('./step07_cicd') {                   
+                   sh 'chmod +x gradlew'    
+	      sh './gradlew build'
+                }
             }
-        }
-
-        stage('Test') {
-            steps {
-                echo '🧪 테스트 실행 중...'
-                sh './gradlew test'
-            }
-        }
-
-        stage('Package') {
-            steps {
-                echo '📦 패키징 중...'
-                archiveArtifacts artifacts: 'build/libs/*.jar', allowEmptyArchive: true
-            }
-        }
+        }               
     }
-
     post {
-        always {
-            echo '📢 파이프라인 완료!'
-        }
         success {
-            echo '✅ 성공적으로 빌드되었습니다.'
+            echo '✅ 빌드 성공!'
         }
         failure {
-            echo '❌ 빌드가 실패했습니다. 로그를 확인하세요.'
+            echo '❌ 빌드 실패! 오류 확인 필요!'
         }
     }
 }
