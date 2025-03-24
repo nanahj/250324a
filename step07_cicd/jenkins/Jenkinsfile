@@ -1,0 +1,45 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                echo '📂 Git 저장소를 클론 중...'
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo '🔨 빌드 중...'
+                sh './jenkins/build.sh'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo '🧪 테스트 실행 중...'
+                sh './gradlew test'
+            }
+        }
+
+        stage('Package') {
+            steps {
+                echo '📦 패키징 중...'
+                archiveArtifacts artifacts: 'build/libs/*.jar', allowEmptyArchive: true
+            }
+        }
+    }
+
+    post {
+        always {
+            echo '📢 파이프라인 완료!'
+        }
+        success {
+            echo '✅ 성공적으로 빌드되었습니다.'
+        }
+        failure {
+            echo '❌ 빌드가 실패했습니다. 로그를 확인하세요.'
+        }
+    }
+}
